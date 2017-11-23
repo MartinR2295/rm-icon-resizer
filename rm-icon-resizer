@@ -8,7 +8,10 @@ from lib.utils.rm_script_manager import *
 from lib.android_properties import *
 from lib.ios_properties import *
 import getopt
-from PIL import Image
+try:
+	from PIL import Image
+except ImportError:
+	RMColorManager.printError("Please install the PIL Module!")
 
 optionInput = RMOption("i", "input", True, "Input Icon Value in 1024x1024")
 optionOutput = RMOption("o", "output", True, "Output Folder Name")
@@ -22,52 +25,39 @@ def main():
 		optionManager.usage()
 		sys.exit(2)
 	
+	if not os.path.isfile(optionManager.getArgument(optionInput)):
+		RMColorManager.printError("the value for '-i' must be a file")
+		sys.exit(2)
+		
+	if os.path.isdir(optionManager.getArgument(optionOutput)):
+		RMColorManager.printError("the output folder already exists!")
+		sys.exit(2)
+	
 	#Values	
 	folderName = optionManager.getArgument(optionOutput)
 	androidFolderName = folderName+"/Android"
 	iosFolderName = folderName+"/iOS/"+IOSProperties.folderName
-	ldpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.ldpiName
-	mdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.mdpiName
-	hdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.hdpiName
-	xhdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.xhdpiName
-	xxhdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.xxhdpiName
-	xxxhdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.xxxhdpiName
 
 	#CreateFolders
-	folderName = optionManager.getArgument(optionOutput)
-	os.makedirs(folderName)
-	os.makedirs(androidFolderName)
-	os.makedirs(ldpiFolder)
-	os.makedirs(mdpiFolder)
-	os.makedirs(hdpiFolder)
-	os.makedirs(xhdpiFolder)
-	os.makedirs(xxhdpiFolder)
-	os.makedirs(xxxhdpiFolder)
-	
+	AndroidProperties.createFolders(androidFolderName)
 	os.makedirs(iosFolderName)
-
-	RMColorManager().printWithColor("folders created", RMColorManager.green)
+	RMColorManager.printWithColor("created folders", RMColorManager.green)
 
 	#open the image
 	img = Image.open(optionManager.getArgument(optionInput))
 
 	#Android
-	img.resize(AndroidProperties.ldpi, Image.ANTIALIAS).save(ldpiFolder+"/"+AndroidProperties.fileName)
-	img.resize(AndroidProperties.mdpi, Image.ANTIALIAS).save(mdpiFolder+"/"+AndroidProperties.fileName)
-	img.resize(AndroidProperties.hdpi, Image.ANTIALIAS).save(hdpiFolder+"/"+AndroidProperties.fileName)
-	img.resize(AndroidProperties.xhdpi, Image.ANTIALIAS).save(xhdpiFolder+"/"+AndroidProperties.fileName)
-	img.resize(AndroidProperties.xxhdpi, Image.ANTIALIAS).save(xxhdpiFolder+"/"+AndroidProperties.fileName)
-	img.resize(AndroidProperties.xxxhdpi, Image.ANTIALIAS).save(xxxhdpiFolder+"/"+AndroidProperties.fileName)
+	for property in AndroidProperties.allProperties:
+		img.resize(property.size, Image.ANTIALIAS).save(androidFolderName+"/"+property.folderName+"/"+property.fileName)
 	
-	RMColorManager().printWithColor("android files created", RMColorManager.green)
+	RMColorManager.printWithColor("created android files", RMColorManager.green)
+	
 	#iOS
 	for property in IOSProperties.allProperties:
 		img.resize(property.scaledSize, Image.ANTIALIAS).save(iosFolderName+"/"+property.filename)
 	
-	contentsJson = open(iosFolderName+"/"+IOSProperties.jsonFileName, "w")
-	contentsJson.write(IOSProperties().getContentsJson())
-	contentsJson.close()
-	RMColorManager().printWithColor("iOS files created", RMColorManager.green)
+	IOSProperties.createContentsJson(iosFolderName)
+	RMColorManager().printWithColor("created iOS files", RMColorManager.green)
 
 def checkVersionAndArguments():
 	global options, optionManager

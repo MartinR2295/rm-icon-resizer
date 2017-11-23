@@ -12,11 +12,14 @@ class RMColorManager(object):
 	def __init__(self):
 		pass
 
-	def printWithColor(self, text, color):
-		print(color + text + self.end)
+	@staticmethod
+	def printWithColor(text, color):
+		print(color + text + RMColorManager.end)
 
-	def printError(self, text):
-		print(self.red + text + self.end)
-
-	def printBold(self, text):
-		print(self.bold + text + self.end)
+	@staticmethod
+	def printError(text):
+		print(RMColorManager.red + text + RMColorManager.end)
+		
+	@staticmethod
+	def printBold(text):
+		print(RMColorManager.bold + text + RMColorManager.end)

@@ -60,22 +60,29 @@ class IOSProperties(object):
 	def __init__(self):
 		pass
 	
-	def getContentsJson(self):
+	@staticmethod
+	def getContentsJson():
 		jsonString = "{\n"
 		jsonString += "	\"images\" : [\n"
 		
-		for i in range(0, len(self.allProperties)):
-			property = self.allProperties[i]
+		for i in range(0, len(IOSProperties.allProperties)):
+			property = IOSProperties.allProperties[i]
 			jsonString += property.getJson()
-			if(i < len(self.allProperties)-1):
+			if(i < len(IOSProperties.allProperties)-1):
 				jsonString += ","
 			jsonString += "\n"
 			
 		jsonString += "	],\n"
 		jsonString += "	\"info\" : {\n"
-		jsonString += "		\"version\" : "+str(self.version)+",\n"
-		jsonString += "		\"author\" : \""+self.author+"\"\n"
+		jsonString += "		\"version\" : "+str(IOSProperties.version)+",\n"
+		jsonString += "		\"author\" : \""+IOSProperties.author+"\"\n"
 		jsonString += "	}\n"
 		jsonString += "}"
 		
 		return jsonString
+	
+	@staticmethod
+	def createContentsJson(folderName):
+		contentsJson = open(folderName+"/"+IOSProperties.jsonFileName, "w")
+		contentsJson.write(IOSProperties.getContentsJson())
+		contentsJson.close()
