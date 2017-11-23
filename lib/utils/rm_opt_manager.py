@@ -50,7 +50,7 @@ class RMOptManager(object):
 	
 	def usage(self):
 		print("")
-		RMColorManager().printBold("Usage of the "+self.scriptName+" Script")
+		RMColorManager.printBold("Usage of the "+self.scriptName+" Script")
 		print("")
 		for option in self.options:
 			print("-"+option.shortIdentifier+", --"+option.longIdentifier+(" {arg}" if option.valueRequired else "")+":	"+option.description)
