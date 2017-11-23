@@ -1,0 +1,78 @@
+#!/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+
+import sys
+import os
+from lib.utils.rm_color_manager import *
+from lib.utils.rm_opt_manager import *
+from lib.utils.rm_script_manager import *
+from lib.android_properties import *
+from lib.ios_properties import *
+import getopt
+from PIL import Image
+
+optionInput = RMOption("i", "input", True, "Input Icon Value in 1024x1024")
+optionOutput = RMOption("o", "output", True, "Output Folder Name")
+
+options = [optionInput, optionOutput]
+optionManager = RMOptManager(options)
+
+def main():
+	checkVersionAndArguments()
+	if not (optionManager.argumentExist(optionInput) and optionManager.argumentExist(optionOutput)):
+		optionManager.usage()
+		sys.exit(2)
+	
+	#Values	
+	folderName = optionManager.getArgument(optionOutput)
+	androidFolderName = folderName+"/Android"
+	iosFolderName = folderName+"/iOS/"+IOSProperties.folderName
+	ldpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.ldpiName
+	mdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.mdpiName
+	hdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.hdpiName
+	xhdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.xhdpiName
+	xxhdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.xxhdpiName
+	xxxhdpiFolder = androidFolderName+"/"+AndroidProperties.folderName+"-"+AndroidProperties.xxxhdpiName
+
+	#CreateFolders
+	folderName = optionManager.getArgument(optionOutput)
+	os.makedirs(folderName)
+	os.makedirs(androidFolderName)
+	os.makedirs(ldpiFolder)
+	os.makedirs(mdpiFolder)
+	os.makedirs(hdpiFolder)
+	os.makedirs(xhdpiFolder)
+	os.makedirs(xxhdpiFolder)
+	os.makedirs(xxxhdpiFolder)
+	
+	os.makedirs(iosFolderName)
+
+	RMColorManager().printWithColor("folders created", RMColorManager.green)
+
+	#open the image
+	img = Image.open(optionManager.getArgument(optionInput))
+
+	#Android
+	img.resize(AndroidProperties.ldpi, Image.ANTIALIAS).save(ldpiFolder+"/"+AndroidProperties.fileName)
+	img.resize(AndroidProperties.mdpi, Image.ANTIALIAS).save(mdpiFolder+"/"+AndroidProperties.fileName)
+	img.resize(AndroidProperties.hdpi, Image.ANTIALIAS).save(hdpiFolder+"/"+AndroidProperties.fileName)
+	img.resize(AndroidProperties.xhdpi, Image.ANTIALIAS).save(xhdpiFolder+"/"+AndroidProperties.fileName)
+	img.resize(AndroidProperties.xxhdpi, Image.ANTIALIAS).save(xxhdpiFolder+"/"+AndroidProperties.fileName)
+	img.resize(AndroidProperties.xxxhdpi, Image.ANTIALIAS).save(xxxhdpiFolder+"/"+AndroidProperties.fileName)
+	
+	RMColorManager().printWithColor("android files created", RMColorManager.green)
+	#iOS
+	for property in IOSProperties.allProperties:
+		img.resize(property.scaledSize, Image.ANTIALIAS).save(iosFolderName+"/"+property.filename)
+	
+	contentsJson = open(iosFolderName+"/"+IOSProperties.jsonFileName, "w")
+	contentsJson.write(IOSProperties().getContentsJson())
+	contentsJson.close()
+	RMColorManager().printWithColor("iOS files created", RMColorManager.green)
+
+def checkVersionAndArguments():
+	global options, optionManager
+	RMScriptManager.checkVersion((3,6), "Please use Python 3.6 or greater!")
+	optionManager.checkArguments()
+	
+if __name__ == '__main__':
+	main()
