@@ -1,4 +1,4 @@
-#!/Library/Frameworks/Python.framework/Versions/3.6/bin/python3
+#!/usr/local/bin/python3
 
 import sys
 import os
@@ -13,7 +13,7 @@ try:
 except ImportError:
 	RMColorManager.printError("Please install the PIL Module!")
 
-optionInput = RMOption("i", "input", True, "Input Icon Value in 1024x1024")
+optionInput = RMOption("i", "input", True, "Input Image in highest size as possible")
 optionOutput = RMOption("o", "output", True, "Output Folder Name")
 
 options = [optionInput, optionOutput]
